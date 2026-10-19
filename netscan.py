@@ -34,7 +34,7 @@ def ping(ip):
 
 def portscan(ip):
     epoch = datetime.timestamp(datetime.now())
-    output = f"nmap_{ip}_{epoch}.xml"
+    output = f"output/nmap_{ip}_{epoch}.xml"
     executor(
         [
             "nmap",
