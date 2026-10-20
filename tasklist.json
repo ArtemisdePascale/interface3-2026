@@ -1,0 +1,111 @@
+{
+  "humans": {
+    "Billy": {
+      "age": 40,
+      "time": 1.0,
+      "assigned": [
+        "vaisselle"
+      ]
+    },
+    "Jean": {
+      "age": 14,
+      "time": 3,
+      "assigned": [
+        "pr\u00e9parer le sac"
+      ]
+    },
+    "Maxence": {
+      "age": 10,
+      "time": 2.0,
+      "assigned": []
+    }
+  },
+  "tasks": {
+    "vaisselle": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0.33,
+      "status": null
+    },
+    "lessive": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "ranger la chambre": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "sortir la poubelle": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "aspirateur": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "nettoyage plan de travail": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "nettoyage gourde": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "pr\u00e9parer le sac": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null,
+      "assigned": {
+        "age": 14,
+        "time": 3,
+        "assigned": [
+          "pr\u00e9parer le sac"
+        ]
+      }
+    },
+    "vider le sac a picnic": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "faire la liste de course": {
+      "min_age": 0,
+      "max_age": 0,
+      "reminder": 0,
+      "timeframe": 0,
+      "status": null
+    },
+    "Faire des cookies": {
+      "age": {
+        "min": 10,
+        "max": 99
+      },
+      "reminder": 0,
+      "timeframe": 0.5,
+      "status": null
+    }
+  }
+}
