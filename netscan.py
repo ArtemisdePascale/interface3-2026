@@ -42,8 +42,8 @@ def portscan(ip):
         [
             "nmap",
             "-p-",
-            "-oX",
-            output,
+            "-oX", output,
+            "--host-timeout", "1h",
             ip
         ],
     )
