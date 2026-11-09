@@ -2,10 +2,10 @@ from icecream import ic
 import ipaddress
 import sys
 import subprocess
-from datetime import  datetime
 from tqdm import tqdm
 from libnmap.parser import NmapParser
 import os
+from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor
 
 
@@ -18,7 +18,16 @@ def executor(cmd):
     return process
 
 
-def ping(ip):
+def ping(argtup):
+    ip, out = argtup
+    upfile = Path(f"output/{out}/ping/{ip}.up")
+    downfile = Path(f"output/{out}/ping/{ip}.down")
+    if upfile.exists():
+        tqdm.write(f"{ip} is up")
+        return True, ip
+    if downfile.exists():
+        return False, ip
+
     pr = executor(
         [
             'ping', 
@@ -30,23 +39,25 @@ def ping(ip):
     )
     if pr.returncode == 0:
         tqdm.write(f"{ip} is up")
+        upfile.touch()
         return True, ip
     else:
+        downfile.touch()
         return False, ip
 
 
-def portscan(ip):
-    epoch = datetime.timestamp(datetime.now())
-    output = f"output/nmap_{ip}_{epoch}.xml"
-    executor(
-        [
-            "nmap",
-            "-p-",
-            "-oX", output,
-            "--host-timeout", "1h",
-            ip
-        ],
-    )
+def portscan(ip, out):
+    output = f"output/{out}/portscan/{ip}.xml"
+    if not Path(output).exists():
+        executor(
+            [
+                "nmap",
+                "-p-",
+                "-oX", output,
+                "--host-timeout", "1h",
+                ip
+            ],
+        )
     nmap_report = NmapParser.parse_fromfile(output)
     for host in nmap_report.hosts:
         if not host.get_open_ports():
@@ -60,33 +71,39 @@ def portscan(ip):
         return portlist, ip
 
 
-def servicescan(ip, portlst):
-    epoch = datetime.timestamp(datetime.now())
-    output = f"output/nmap_{ip}_{epoch}/{ip}"
-    os.makedirs(f"output/nmap_{ip}_{epoch}", exist_ok=True)
+def servicescan(ip, portlst, out):
+    output = f"output/{out}/servicescan/{ip}"
+    os.makedirs(output, exist_ok=True)
     tqdm.write(' '.join([
         "nmap", "-p", ",".join(portlst),
         "-A", "-oA", output, ip
     ]))
-    executor(
-        [
-            "nmap",
-            "-p",
-            ",".join(portlst),
-            "-oA",
-            output,
-            ip
-        ],
-    )
+    if not Path(f"{output}/{ip}.xml").exists():
+        executor(
+            [
+                "nmap",
+                "-p",
+                ",".join(portlst),
+                "-oA",
+                output,
+                ip
+            ],
+        )
 
 
-def main(net):
+def main(net, proj):
     scanned = {}
     tqdm.write(f"Scanning network {net}")
+    if not os.path.isdir(f'output/{proj}'):
+        os.makedirs(f'output/{proj}', exist_ok=True)
+        os.makedirs(f'output/{proj}/ping', exist_ok=True)
+        os.makedirs(f'output/{proj}/portscan', exist_ok=True)
+        os.makedirs(f'output/{proj}/servicescan', exist_ok=True)
+
     net = ipaddress.IPv4Network(net, strict=False)
 
     with ThreadPoolExecutor(max_workers=min(20, len(list(net.hosts())))) as exec:
-        res = exec.map(ping, [str(h) for h in net.hosts()])
+        res = exec.map(ping, [(str(h), proj) for h in net.hosts()])
 
     for future in res:
         status, host = future
@@ -101,7 +118,7 @@ def main(net):
         futures = []
         for ip, details in scanned.items():
             if details.get("live", False):
-                futures.append(exec.submit(portscan, ip))
+                futures.append(exec.submit(portscan, ip, proj))
 
 
     for future in futures:
@@ -116,11 +133,25 @@ def main(net):
         futures = []
         for ip, details in scanned.items():
             if details.get("ports", []):
-                futures.append(exec.submit(servicescan, ip, details.get("ports", [])))
+                futures.append(exec.submit(servicescan, ip, details.get("ports", []), proj))
 
     sys.exit(0)
 
 
 if __name__ == '__main__':
     subnet = sys.argv[1]
-    main(subnet)
+    project = sys.argv[2]
+    main(subnet, project)
+    """
+    proj
+        ping
+            1.up
+            2.down
+        portscan
+            1.xml
+        servicescan
+            1
+                1.nmap
+                1.gnmap
+                1.xml   
+    """
