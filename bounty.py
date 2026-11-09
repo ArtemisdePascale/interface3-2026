@@ -287,6 +287,8 @@ def main():
                 tqdm.write(f"{promo} did not work")
                 continue
             else:
+                if not result.get('sellerProposal', {}):
+                    continue
                 for line in result['sellerProposal']['merchandiseDiscount']['lines']:
                     if line['__typename'] == 'DiscountLine':
                         discount = line['discount']['value']
